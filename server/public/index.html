@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Demo</title>
+</head>
+<body>
+    <h1>WebSocket Demo</h1>
+    <div>
+        <input id="messageInput" type="text" placeholder="Enter message" />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    <div id="messages"></div>
+
+    <script>
+        const ws = new WebSocket('ws://localhost:3000');
+
+        // Send a message to the server
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            ws.send(input.value);
+            input.value = '';
+        }
+
+        document.addEventListener('keydown', (event) => {
+          const data = { type: 'keyboard', action: 'keydown', key: event.key };
+          ws.send(JSON.stringify(data));
+        });
+        
+        // Capture and transmit mouse events
+        document.addEventListener('mousemove', (event) => {
+          const data = { 
+            type: 'mouse', 
+            action: 'mousemove', 
+            x: event.clientX, 
+            y: event.clientY 
+          };
+          ws.send(JSON.stringify(data));
+        });
+        
+        document.addEventListener('click', (event) => {
+          const data = { 
+            type: 'mouse', 
+            action: 'click', 
+            x: event.clientX, 
+            y: event.clientY 
+          };
+          ws.send(JSON.stringify(data));
+        })
+    </script>
+</body>
+</html>

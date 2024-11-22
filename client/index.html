@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebSocket Demo</title>
+  </head>
+  <body>
+    <h1>WebSocket Demo</h1>
+    <div>
+      <input id="messageInput" type="text" placeholder="Enter message" />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+    <div id="messages"></div>
+
+    <script>
+
+      function sendMessage() {
+        const input = document.getElementById('messageInput');
+        input.value = '';
+    }
+
+      const ws = new WebSocket("ws://localhost:3000");
+
+      ws.onmessage = (event) => {
+        const action = JSON.parse(event.data);
+        if (action.type === "keyboard") {
+          console.log(`Keyboard Action: ${action.action}, Key: ${action.key}`);
+          if (action.action === "keydown") {
+            const targetElement = document.activeElement; 
+
+            if (
+              targetElement &&
+              (targetElement.tagName === "INPUT" ||
+                targetElement.tagName === "TEXTAREA")
+            ) {
+              const keyEvent = new KeyboardEvent("keydown", {
+                key: action.key, 
+                bubbles: true, 
+                cancelable: true, 
+              });
+
+              targetElement.dispatchEvent(keyEvent);
+              targetElement.value += keyEvent.key
+            } else {
+              console.log("Không có phần tử nào nhận được focus để gõ phím.");
+            }
+          }
+        } else if (action.type === "mouse") {
+          if (action.action === "mousemove") {
+            console.log(`Mouse moved to: (${action.x}, ${action.y})`);
+          } else if (action.action === "click") {
+            const clickEvent = new MouseEvent("click", {
+              clientX: action.x,
+              clientY: action.y,
+              bubbles: true,
+              cancelable: true,
+              view: window,
+            });
+
+            const elementAtPosition = document.elementFromPoint(
+              action.x,
+              action.y
+            );
+
+            console.log("Element at position:", elementAtPosition);
+
+            console.log(typeof elementAtPosition.focus);
+            if (elementAtPosition) {
+              if (elementAtPosition !== document.body) {
+                console.log(
+                  "Thực hiện click tại vị trí:",
+                  action.x,
+                  action.y
+                );
+
+                elementAtPosition.dispatchEvent(clickEvent);
+                
+                if (typeof elementAtPosition.focus === "function") {
+                  elementAtPosition.focus();
+                  console.log("Đã focus vào phần tử:", elementAtPosition);
+                } else {
+                  console.log("Phần tử không hỗ trợ focus.");
+                }
+              } else {
+                console.log("Không thể click vào phần tử này");
+              }
+            } else {
+              console.log("Không tìm thấy phần tử tại vị trí này");
+            }
+            console.log(`Mouse clicked at: (${action.x}, ${action.y})`);
+          }
+        }
+      };
+    </script>
+  </body>
+</html>
