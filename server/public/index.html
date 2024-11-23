@@ -24,7 +24,7 @@
         }
 
         document.addEventListener('keydown', (event) => {
-          const data = { type: 'keyboard', action: 'keydown', key: event.key };
+          const data = { type: 'keyboard', action: 'keydown', key: event.key, code: event.code, keyCode: event.keyCode };
           ws.send(JSON.stringify(data));
         });
         
